@@ -1,8 +1,8 @@
 #csv example
-import csv
-with open('/Users/mpacella/Downloads/DOT_Towing.csv') as f:
-    reader = csv.reader(f)
-    tow_list = list(reader)
+#import csv
+#with open('/Users/mpacella/Downloads/DOT_Towing.csv') as f:
+#    reader = csv.reader(f)
+#    tow_list = list(reader)
 
 #geopy example
 #grab address and city fields from tow_list and pass to geolocator
