@@ -3,39 +3,43 @@ import numpy as np
 from sklearn import cross_validation
 import scipy.stats as stat
 import matplotlib.pyplot as plt
+import itertools
 
-import argparse
-
-#argument parsing
-'''parser = argparse.ArgumentParser(description='grabbing user-provided list of classifiers and single attribute for prediction')
-parser.add_argument('--feature_to_predict', help='provide the feature to predict')
-parser.add_argument('--features_to_train_against', help='provide the features for training ')
-parser.add_argument('--path_to_pickled_dataset', help='provide the path to the pickled dataset')
-args = parser.parse_args()'''
+#OK, we are going to enumerate all pairwise possible combinations and save a pretty correlation plot for each
 
 #load dataset from pickle
 geo_data = np.load("geo_machine_learning_data.npy")
 
-#create target (a 1D numpy array based on the attribute the user provides)
-#dimension should be n_bins
-target = geo_data[:,2]
-print target
+#hard-code which columns are which features (UPDATE THIS ONCE HENRY IS FINISHED!!!!)
+column_feature_mapping = {'liquor stores':0 , 'vacant houses':1, 'crime':2, 'housing permits':3, 'cameras':4, 'farmers markets':5}
 
-#create data (a 2D numpy array based on the classifiers the user provides)
-#dimensions should be n_bins x n_classifiers
-data = geo_data[:,[1]]
-print data
+#iterate through all possible pairwise combinations of feature, one is the classifier, one is the target
+for pair in itertools.combinations(column_feature_mapping.keys(),2):
+
+    #create target (a 1D numpy array based on the attribute the user provides)
+    #dimension should be n_bins
+    target = geo_data[:,column_feature_mapping[pair[0]]]
+    print target
+
+    #create data (a 2D numpy array based on the classifiers the user provides)
+    #dimensions should be n_bins x n_classifiers
+    data = geo_data[:,[column_feature_mapping[pair[1]]]]
+    print data
 
 
-clf = SVR()
-training_data, testing_data, training_target, testing_target = cross_validation.train_test_split(data, target, test_size = 0.4, random_state = 0)
+    clf = SVR()
+    training_data, testing_data, training_target, testing_target = cross_validation.train_test_split(data, target, test_size = 0.4, random_state = 0)
 
-clf.fit(training_data, training_target)
-print clf.score(testing_data, testing_target)
-corr_coefficent = stat.pearsonr(geo_data[:,2],geo_data[:,1])
-print corr_coefficent[0]
-plt.scatter(geo_data[:,1],geo_data[:,2])
-plt.show()
+    clf.fit(training_data, training_target)
+    print clf.score(testing_data, testing_target)
+    data = geo_data[:,column_feature_mapping[pair[1]]]
+    
+    corr_coefficent = stat.pearsonr(data,target)
+    print corr_coefficent[0]
+    plt.scatter(data,target)
+    plt.xlabel(pair[0])
+    plt.ylabel(pair[1])
+    plt.savefig(pair[0]+" vs "+pair[1]+".png")
 
 
 
