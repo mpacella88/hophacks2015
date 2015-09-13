@@ -14,17 +14,18 @@ def data_assemble():
     vacant_building = get_data("https://data.baltimorecity.gov/resource/qqcv-ihn5.csv")    # Works
     liquor_license = get_data("https://data.baltimorecity.gov/resource/xv8d-bwgi.csv")     # Works
     #towing_data = get_data("https://data.baltimorecity.gov/resource/k78j-azhn.csv")        # Works
-    test_dat0 = extract_long_lat2(liquor_license)
-    test_dat = extract_long_lat1(vacant_building)
-    test_dat2 = extract_long_lat1(crime_data)
-    counts_liquor = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,test_dat0)
-    counts_vacant = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,test_dat)
-    counts_crime = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,test_dat2)
+    liquor_dat = extract_long_lat2(liquor_license)
+    vacant_dat = extract_long_lat1(vacant_building)
+    crime_dat = extract_long_lat1(crime_data)
+    
+    counts_liquor = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,liquor_dat)
+    counts_vacant = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,vacant_dat)
+    counts_crime = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,crime_dat)
     test = np.hstack((counts_liquor.reshape((100,1)),counts_vacant.reshape((100,1)),counts_crime.reshape((100,1))))
     print
     print test
     #print
-    print
+    print "Writing geo_machine_learning_data_to_disk..."
     np.save("geo_machine_learning_data",test)
     return
 
