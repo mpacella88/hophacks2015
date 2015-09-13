@@ -4,6 +4,7 @@ import pandas as pd
 import os
 import requests
 import numpy as np
+import csv
 
 def data_assemble():
     #data_311 = get_data("https://data.baltimorecity.gov/resource/9agw-sxsr.csv")           # Works !! Can get GPS Data !!
@@ -29,6 +30,26 @@ def data_assemble():
     #print
     #print test
     print
+    #parking_citation = get_data("https://data.baltimorecity.gov/resource/n4ma-fj3m.csv")   # Works
+    #property_taxes = get_data("https://data.baltimorecity.gov/resource/27w9-urtv.csv")     # Works
+    vacant_building = get_data("https://data.baltimorecity.gov/resource/qqcv-ihn5.csv")    # Works
+    liquor_license = get_data("https://data.baltimorecity.gov/resource/xv8d-bwgi.csv")     # Works
+    #towing_data = get_data("https://data.baltimorecity.gov/resource/k78j-azhn.csv")        # Works
+    special_event = get_data_special("https://data.baltimorecity.gov/resource/cdz5-3y2u.csv")       #does not seem to work
+    permit_activity = get_data_special("https://data.baltimorecity.gov/resource/k6m8-62kn.csv")
+    
+    liquor_dat = extract_long_lat2(liquor_license)
+    vacant_dat = extract_long_lat1(vacant_building)
+    crime_dat = extract_long_lat1(crime_data)
+    
+    counts_liquor = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,liquor_dat)
+    counts_vacant = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,vacant_dat)
+    counts_crime = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,crime_dat)
+    test = np.hstack((counts_liquor.reshape((100,1)),counts_vacant.reshape((100,1)),counts_crime.reshape((100,1))))
+    print
+    print test
+    #print
+    print "Writing geo_machine_learning_data_to_disk..."
     np.save("geo_machine_learning_data",test)
     return
 
@@ -78,9 +99,20 @@ def get_data(info_url):
     r = requests.get(info_url,verify=False)
     temp = open("temp.csv",'w')
     temp.write(r.text)
-    raw_data = pd.read_csv('temp.csv')
+    raw_data = pd.read_csv('temp.csv', error_bad_lines = False)
     temp.close()
     os.remove('temp.csv')
+    return raw_data
+
+def get_data_special(info_url):
+    r = requests.get(info_url,verify=False)
+    temp = open("temp.csv",'w')
+    temp.write(r.text)
+    temp.close()
+    with open("temp.csv") as temp:
+        reader = csv.reader(temp)
+        raw_data = list(reader)
+    #raw_data = pd.read_csv('temp.csv', error_bad_lines = False)
     return raw_data
 
 # Starting Point for lat and long
