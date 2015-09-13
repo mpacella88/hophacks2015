@@ -7,20 +7,13 @@ import numpy as np
 import csv
 
 def data_assemble():
-    #data_311 = get_data("https://data.baltimorecity.gov/resource/9agw-sxsr.csv")           # Works !! Can get GPS Data !!
-    #employee_data_14 = get_data("https://data.baltimorecity.gov/resource/2j28-xzd7.csv")   # Works
-    crime_data = get_data("https://data.baltimorecity.gov/resource/3i3v-ibrt.csv")         # Works
-    #parking_citation = get_data("https://data.baltimorecity.gov/resource/n4ma-fj3m.csv")   # Works !! Can get GPS Data !!
-    #property_taxes = get_data("https://data.baltimorecity.gov/resource/27w9-urtv.csv")     # Works !! Can get GPS Data !!
-    #vacant_building = get_data("https://data.baltimorecity.gov/resource/qqcv-ihn5.csv")    # Works
-    #liquor_license = get_data("https://data.baltimorecity.gov/resource/xv8d-bwgi.csv")     # Works
 
     # This part I will write out csv files in to be loaded as a function of time
     #coor = extract_long_lat1(crime_data)
     #date = list(crime_data['ArrestDate'])
     #write_time_data(date,coor)
 
-
+    crime_data = get_data("https://data.baltimorecity.gov/resource/3i3v-ibrt.csv")         # Works
     #parking_citation = get_data("https://data.baltimorecity.gov/resource/n4ma-fj3m.csv")   # Works
     #property_taxes = get_data("https://data.baltimorecity.gov/resource/27w9-urtv.csv")     # Works
     vacant_building = get_data("https://data.baltimorecity.gov/resource/qqcv-ihn5.csv")    # Works
@@ -28,12 +21,12 @@ def data_assemble():
     #towing_data = get_data("https://data.baltimorecity.gov/resource/k78j-azhn.csv")        # Works
     #special_event = get_data_special("https://data.baltimorecity.gov/resource/cdz5-3y2u.csv")       #does not seem to work
     permit_activity = get_data_special("https://data.baltimorecity.gov/resource/k6m8-62kn.csv")
-    farmers_markets = get_data("https://data.baltimorecity.gov/resource/atzp-3tnt.json")
+    farmers_markets = get_data_special("https://data.baltimorecity.gov/resource/atzp-3tnt.csv")
     speed_cameras = get_data_special("https://data.baltimorecity.gov/resource/aqgr-xx9h.csv")
     camera_dat = []
     for x in speed_cameras[1:]:
         if len(x) > 5:
-            camera_dat.append([ float(y.strip()) for y  in x[-1][1:-1].split(',') ])
+            camera_dat.append([ float(y.strip()) for y in x[-1][1:-1].split(',') ])
 
     permit_dat = []
     for x in permit_activity[1:]:
@@ -43,18 +36,20 @@ def data_assemble():
             holding = [ float(x.strip()) for x in holding]
             permit_dat.append(holding)
 
+    farmers_dat = []
+    for x in farmers_markets[1:]:
+        if len(x[-1]) > 5:
+            holder2 = x[-1].split('\n')
+            farmers_dat.append([ float(y.strip()) for y in holder2[-1][1:-1].split(',')])
     liquor_dat = extract_long_lat2(liquor_license)
     vacant_dat = extract_long_lat1(vacant_building)
     crime_dat = extract_long_lat1(crime_data)
-    farmers_dat = extract_long_lat2(farmers_markets) #@Henry, neither the lat1 or lat2 extract functions currently work for this one
-
-
+    counts_farmers = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,farmers_dat)
     count_cameras = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,camera_dat)
     counts_permit = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,permit_dat)
     counts_liquor = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,liquor_dat)
     counts_vacant = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,vacant_dat)
     counts_crime = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,crime_dat)
-    counts_farmers = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,farmers_dat)
 
     test = np.hstack((counts_liquor.reshape((100,1)),counts_vacant.reshape((100,1)),counts_crime.reshape((100,1)),counts_permit.reshape((100,1)),count_cameras.reshape((100,1)),counts_farmers.reshape((100,1))))
 
