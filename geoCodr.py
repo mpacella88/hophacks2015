@@ -4,24 +4,26 @@ import geopy
 import numpy as np
 import os
 import pandas as pd
+from time import sleep
 
 from geopy.geocoders import ArcGIS
 from geopy.geocoders import Bing
+from geopy.geocoders import OpenMapQuest
 # from geopy.geocoders import GoogleV3
-from geopy.geocoders import Nominatim
+# from geopy.geocoders import Nominatim
 _geocoderTypes = [Geocoder for Geocoder in vars().values() if isclass(Geocoder) and issubclass(Geocoder, geopy.geocoders.base.Geocoder)]
 
 class GeoCodr(object):
     def __init__(self,
                  csvPath,
                  bing_api_key,#='Asd8oy3X0l2q3ZR8sNV-yivQBBik-MP_m7UhQHjICIZipiQmeq6EAQOz2l4GJh2K', 
-#                  google_api_key='AIzaSyCYsHk9XQpmo1qcSgiqZaVrvzDjhGDInMQ',
+#                 google_api_key='AIzaSyCYsHk9XQpmo1qcSgiqZaVrvzDjhGDInMQ',
                  timeout=5,
                  workUnitNum=None):
         self.csvInPath = os.path.realpath(csvPath)
         self.csvOutPath = ''.join(os.path.realpath(csvPath).split('.')[:-1]) + '_with_lat_long.csv'
         
-        print self.csvOutPath
+        self.inStartRow = self.csvResume()
         
         self.bing_api_key = bing_api_key
 #         self.google_api_key =google_api_key
@@ -38,7 +40,20 @@ class GeoCodr(object):
             self.df = self.df.reset_index()
             
         self.flushRows = 50
-            
+    
+    def csvResume(self):
+        if os.path.isfile(self.csvOutPath):
+            with open(self.csvOutPath) as tmpOut:
+                tmpOut.seek(-(2**15), 2)
+                for line in tmpOut:
+                    pass
+                last = line
+            lastTokens = last.split(',')
+            print int(lastTokens[0])
+            return int(lastTokens[0])
+        else:
+            return 0
+          
     def read_csv(self):
         self.df = pd.read_csv(self.csvInPath)
         
@@ -69,7 +84,7 @@ class GeoCodr(object):
         self.geocoderCycle = cycle(self.geocoders)
         
     def geocode(self, colName='address'):
-        i = 0
+        i = self.inStartRow
         running = True
         for geocoder in self.geocoderCycle:
             if running==False:
@@ -85,7 +100,7 @@ class GeoCodr(object):
                 try:
                     if 'Bing' in geocoder.__class__.__name__:
                         query = {'addressLine':self.df[colName][i], 'locality':'Baltimore', 'state':'Maryland'}
-                    elif 'Google' in geocoder.__class__.__name__ or 'Nominatim' in geocoder.__class__.__name__:
+                    elif 'Google' in geocoder.__class__.__name__ or 'Nominatim' in geocoder.__class__.__name__:# or 'OpenMapQuest' in geocoder.__class__.__name__:
                         query = {'street':self.df[colName][i], 'city':'Baltimore', 'state':'Maryland'}
                     else:
                         query = self.df[colName][i] + 'Baltimore, Maryland'
@@ -94,10 +109,15 @@ class GeoCodr(object):
                     self.df['codedAddress'][i] = location.address, 
                     self.df['latitude'][i] = float(location.latitude)
                     self.df['longitude'][i] = float(location.longitude)
-                except (AttributeError, geopy.exc.GeocoderTimedOut, TypeError) as e:
-                    continue
-                finally:
                     i+=1
+                except (AttributeError, TypeError) as e:
+                    i+=1
+                except geopy.exc.GeopyError:
+                    switchSleep = 2
+                    print 'Switching geocoder in %d seconds' % switchSleep
+                    sleep(switchSleep)
+                    i+=1
+                    break
                     
 if __name__=='__main__':
     import sys

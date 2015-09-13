@@ -28,6 +28,8 @@ def data_assemble():
     #test = np.hstack((counts_liquor.reshape((100,1)),counts_vacant.reshape((100,1)),counts_crime.reshape((100,1))))
     #print
     #print test
+    print
+    np.save("geo_machine_learning_data",test)
     return
 
 def write_time_data(date,coor):
@@ -53,7 +55,6 @@ def write_time_data(date,coor):
         elif int(date[x][3:5]) == 30:
             outfile = open('crime1.csv','a')
             outfile.write("%f %f\n"%(coor[x][0],coor[x][1]))
-    return
 
 # This is a function that extracts long and lat for
 #   vacant_building and crime_data
@@ -68,8 +69,8 @@ def extract_long_lat1(data_set):
 def extract_long_lat2(data_set):
     test_dat = []
     for x in data_set['Location 1']:
-        if len(str(x)) > 10:
-            holder = x.split('\r')[-1].strip()
+        if len(str(x)) > 5:
+            holder = x.split('\n')[-1].strip() #note this line may need to be changed going between windows/mac
             test_dat.append([ float(y.strip()) for y in holder[1:-1].split(',') ])
     return test_dat
 
