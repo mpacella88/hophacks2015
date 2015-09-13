@@ -1,17 +1,36 @@
-#csv example
+#simple scatter plot of addresses in tow data
+import geopy
+import numpy
+import matplotlib.pyplot as plt
 import csv
+from geopy.geocoders import Nominatim
+
+geolocator = Nominatim()
+
 with open('/Users/mpacella/Downloads/DOT_Towing.csv') as f:
     reader = csv.reader(f)
     tow_list = list(reader)
 
-#geopy example
-#grab address and city fields from tow_list and pass to geolocator
-import geopy
-from geopy.geocoders import Nominatim
-geolocator = Nominatim()
-location = geolocator.geocode(3957  BROOKLYN AVE BALTIMORE)
-location.latitude
-location.longitude
+longitude[]
+latitude[]
+
+for tow_data in tow_list:
+    address = tow_data[10]
+    location = geolocator.geocode(address)
+    longitude.append(location.longitude)
+    latitude.append(location.latitude)
+
+plt.scatter(latitude,longitude)
+
+plt.show()
+
+
+
+
+
+
+
+
 
 
 
