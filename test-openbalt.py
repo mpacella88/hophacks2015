@@ -16,9 +16,9 @@ def data_assemble():
     #liquor_license = get_data("https://data.baltimorecity.gov/resource/xv8d-bwgi.csv")     # Works
 
     # This part I will write out csv files in to be loaded as a function of time
-    coor = extract_long_lat1(crime_data)
-    date = list(crime_data['ArrestDate'])
-    write_time_data(date,coor)
+    #coor = extract_long_lat1(crime_data)
+    #date = list(crime_data['ArrestDate'])
+    #write_time_data(date,coor)
 
     #test_dat0 = extract_long_lat2(liquor_license)
     #test_dat = extract_long_lat1(vacant_building)
@@ -29,28 +29,34 @@ def data_assemble():
     #test = np.hstack((counts_liquor.reshape((100,1)),counts_vacant.reshape((100,1)),counts_crime.reshape((100,1))))
     #print
     #print test
-    print
+    #print
     #parking_citation = get_data("https://data.baltimorecity.gov/resource/n4ma-fj3m.csv")   # Works
     #property_taxes = get_data("https://data.baltimorecity.gov/resource/27w9-urtv.csv")     # Works
     vacant_building = get_data("https://data.baltimorecity.gov/resource/qqcv-ihn5.csv")    # Works
     liquor_license = get_data("https://data.baltimorecity.gov/resource/xv8d-bwgi.csv")     # Works
     #towing_data = get_data("https://data.baltimorecity.gov/resource/k78j-azhn.csv")        # Works
-    special_event = get_data_special("https://data.baltimorecity.gov/resource/cdz5-3y2u.csv")       #does not seem to work
     permit_activity = get_data_special("https://data.baltimorecity.gov/resource/k6m8-62kn.csv")
-    
+    permit_dat = []
+    for x in permit_activity[1:]:
+        holding = x[-1].split('\n')[-1]
+        if len(holding) > 7:
+            holding = holding[1:-1].split(',')
+            holding = [ float(x.strip()) for x in holding]
+            permit_dat.append(holding)
+
     liquor_dat = extract_long_lat2(liquor_license)
     vacant_dat = extract_long_lat1(vacant_building)
     crime_dat = extract_long_lat1(crime_data)
-    
+    counts_permit = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,permit_dat)
     counts_liquor = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,liquor_dat)
     counts_vacant = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,vacant_dat)
     counts_crime = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,crime_dat)
-    test = np.hstack((counts_liquor.reshape((100,1)),counts_vacant.reshape((100,1)),counts_crime.reshape((100,1))))
-    print
+    test = np.hstack((counts_liquor.reshape((100,1)),counts_vacant.reshape((100,1)),counts_crime.reshape((100,1)),counts_permit.reshape((100,1))))
+    #print
     print test
     #print
-    print "Writing geo_machine_learning_data_to_disk..."
-    np.save("geo_machine_learning_data",test)
+    #print "Writing geo_machine_learning_data_to_disk..."
+    #np.save("geo_machine_learning_data",test)
     return
 
 def write_time_data(date,coor):
