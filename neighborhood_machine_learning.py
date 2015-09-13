@@ -1,6 +1,8 @@
 from sklearn.svm import SVR
 import numpy as np
 from sklearn import cross_validation
+import scipy.stats as stat
+import matplotlib.pyplot as plt
 
 import argparse
 
@@ -16,12 +18,13 @@ geo_data = np.load("geo_machine_learning_data.npy")
 
 #create target (a 1D numpy array based on the attribute the user provides)
 #dimension should be n_bins
-target = geo_data[:,0]
-
+target = geo_data[:,2]
+print target
 
 #create data (a 2D numpy array based on the classifiers the user provides)
 #dimensions should be n_bins x n_classifiers
-data = geo_data[:,1:3]
+data = geo_data[:,[1]]
+print data
 
 
 clf = SVR()
@@ -29,6 +32,10 @@ training_data, testing_data, training_target, testing_target = cross_validation.
 
 clf.fit(training_data, training_target)
 print clf.score(testing_data, testing_target)
+corr_coefficent = stat.pearsonr(geo_data[:,2],geo_data[:,1])
+print corr_coefficent[0]
+plt.scatter(geo_data[:,1],geo_data[:,2])
+plt.show()
 
 
 
