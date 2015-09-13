@@ -4,6 +4,7 @@ import pandas as pd
 import os
 import requests
 import numpy as np
+import csv
 
 def data_assemble():
     #data_311 = get_data("https://data.baltimorecity.gov/resource/9agw-sxsr.csv")           # Works
@@ -14,6 +15,9 @@ def data_assemble():
     vacant_building = get_data("https://data.baltimorecity.gov/resource/qqcv-ihn5.csv")    # Works
     liquor_license = get_data("https://data.baltimorecity.gov/resource/xv8d-bwgi.csv")     # Works
     #towing_data = get_data("https://data.baltimorecity.gov/resource/k78j-azhn.csv")        # Works
+    special_event = get_data_special("https://data.baltimorecity.gov/resource/cdz5-3y2u.csv")       #does not seem to work
+    permit_activity = get_data_special("https://data.baltimorecity.gov/resource/k6m8-62kn.csv")
+    
     liquor_dat = extract_long_lat2(liquor_license)
     vacant_dat = extract_long_lat1(vacant_building)
     crime_dat = extract_long_lat1(crime_data)
@@ -50,9 +54,20 @@ def get_data(info_url):
     r = requests.get(info_url,verify=False)
     temp = open("temp.csv",'w')
     temp.write(r.text)
-    raw_data = pd.read_csv('temp.csv')
+    raw_data = pd.read_csv('temp.csv', error_bad_lines = False)
     temp.close()
     os.remove('temp.csv')
+    return raw_data
+
+def get_data_special(info_url):
+    r = requests.get(info_url,verify=False)
+    temp = open("temp.csv",'w')
+    temp.write(r.text)
+    temp.close()
+    with open("temp.csv") as temp:
+        reader = csv.reader(temp)
+        raw_data = list(reader)
+    #raw_data = pd.read_csv('temp.csv', error_bad_lines = False)
     return raw_data
 
 # Starting Point for lat and long
