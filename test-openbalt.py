@@ -12,14 +12,19 @@ def data_assemble():
     #parking_citation = get_data("https://data.baltimorecity.gov/resource/n4ma-fj3m.csv")   # Works
     #property_taxes = get_data("https://data.baltimorecity.gov/resource/27w9-urtv.csv")     # Works
     vacant_building = get_data("https://data.baltimorecity.gov/resource/qqcv-ihn5.csv")    # Works
-    #liquor_license = get_data("https://data.baltimorecity.gov/resource/xv8d-bwgi.csv")     # Works
+    liquor_license = get_data("https://data.baltimorecity.gov/resource/xv8d-bwgi.csv")     # Works
     #towing_data = get_data("https://data.baltimorecity.gov/resource/k78j-azhn.csv")        # Works
+    test_dat0 = extract_long_lat2(liquor_license)
     test_dat = extract_long_lat1(vacant_building)
     test_dat2 = extract_long_lat1(crime_data)
-    counts = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,test_dat)
-    counts2 = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,test_dat2)
-    print counts
-    print counts2
+    counts_liquor = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,test_dat0)
+    counts_vacant = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,test_dat)
+    counts_crime = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,test_dat2)
+    test = np.hstack((counts_liquor.reshape((100,1)),counts_vacant.reshape((100,1)),counts_crime.reshape((100,1))))
+    print
+    print test
+    #print
+    print
     return
 
 # This is a function that extracts long and lat for
@@ -29,6 +34,14 @@ def extract_long_lat1(data_set):
     for x in data_set['Location 1']:
         if len(str(x)) > 10:
             test_dat.append([ float(y.strip()) for y in x[1:-1].split(',') ])
+    return test_dat
+
+def extract_long_lat2(data_set):
+    test_dat = []
+    for x in data_set['Location 1']:
+        if len(str(x)) > 10:
+            holder = x.split('\r')[-1].strip()
+            test_dat.append([ float(y.strip()) for y in holder[1:-1].split(',') ])
     return test_dat
 
 def get_data(info_url):
