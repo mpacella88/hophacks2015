@@ -25,6 +25,7 @@ def data_assemble():
     print test
     #print
     print
+    np.save("geo_machine_learning_data",test)
     return
 
 # This is a function that extracts long and lat for
@@ -39,8 +40,8 @@ def extract_long_lat1(data_set):
 def extract_long_lat2(data_set):
     test_dat = []
     for x in data_set['Location 1']:
-        if len(str(x)) > 10:
-            holder = x.split('\r')[-1].strip()
+        if len(str(x)) > 5:
+            holder = x.split('\n')[-1].strip() #note this line may need to be changed going between windows/mac
             test_dat.append([ float(y.strip()) for y in holder[1:-1].split(',') ])
     return test_dat
 
