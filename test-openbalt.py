@@ -25,6 +25,7 @@ def data_assemble():
     print test
     #print
     print
+    np.save("geo_machine_learning_data",test)
     return
 
 # This is a function that extracts long and lat for
