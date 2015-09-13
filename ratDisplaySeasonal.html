@@ -42,14 +42,14 @@
 
 <body>
 <div id="floating-panel">
-    <input type="range" min="1" max="71" value="1" step="1" onchange="initMap(this.value)" />
+    <input type="range" min="0" max="2" value="1" step="1" onchange="initMap(this.value)" />
     <span id="range">time</span>
 </div>
 <div id="map"></div>
 
 <script type="text/javascript">
-var map, heatmap;
-var path = [];
+    var map, heatmap;
+    var path = [];
     function firstInitMap(){
         map = new google.maps.Map(document.getElementById('map'), {
             zoom: 13,
@@ -64,7 +64,6 @@ var path = [];
             heatmap.getData().j = [];
         }
         //changeGradient();
-        alert(path);
         heatmap = new google.maps.visualization.HeatmapLayer({
             data: path,
             map: map
@@ -76,28 +75,28 @@ var path = [];
             //fetch text file
             if (!newValue)
             {
-                fileNm = 'rats_dayofyear_0.csv';
+                fileNm = 'rats_quarter_0.csv';
             }
             else {
-                fileNm = 'rats_dayofyear_' + String(newValue) + '.csv';
+                fileNm = 'rats_quarter_*' + String(newValue) + '.csv';
             }
-                $.get(fileNm, function (data) {
-                    //split on new lines
-                    var lines = data.split('\n');
-                    //create select
-                    //iterate over lines of file and create a option element
-                    path = [];
-                    for (var i = 0; i < lines.length-1; i++) {
-                        //create option
-                        var el = lines[i].split(' ');
-                        path.push(new google.maps.LatLng(el[0], el[1]));
-                        //append option to select
-                    };
-                    //append select to page
-                });
+            $.get(fileNm, function (data) {
+                //split on new lines
+                var lines = data.split('\n');
+                //create select
+                //iterate over lines of file and create a option element
+                path = [];
+                for (var i = 0; i < lines.length-1; i++) {
+                    //create option
+                    var el = lines[i].split(' ');
+                    path.push(new google.maps.LatLng(el[0], el[1]));
+                    //append option to select
+                };
+                //append select to page
             });
+        });
 
-       // console.log(file);
+        // console.log(file);
     }
 
     function toggleHeatmap() {
