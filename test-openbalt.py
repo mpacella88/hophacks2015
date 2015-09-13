@@ -23,6 +23,14 @@ def data_assemble():
     permit_activity = get_data_special("https://data.baltimorecity.gov/resource/k6m8-62kn.csv")
     farmers_markets = get_data_special("https://data.baltimorecity.gov/resource/atzp-3tnt.csv")
     speed_cameras = get_data_special("https://data.baltimorecity.gov/resource/aqgr-xx9h.csv")
+    minor_permits = get_data_special("https://data.baltimorecity.gov/resource/bwg6-98m2.csv")
+
+    minor_dat = []
+    for x in minor_permits[1:]:
+        if len(x[-1]) > 5:
+            holder = x[-1].split('\n')
+            minor_dat.append([ float(y.strip()) for y in holder[-1][1:-1].split(',') ])
+
     camera_dat = []
     for x in speed_cameras[1:]:
         if len(x) > 5:
@@ -41,9 +49,12 @@ def data_assemble():
         if len(x[-1]) > 5:
             holder2 = x[-1].split('\n')
             farmers_dat.append([ float(y.strip()) for y in holder2[-1][1:-1].split(',')])
+
     liquor_dat = extract_long_lat2(liquor_license)
     vacant_dat = extract_long_lat1(vacant_building)
     crime_dat = extract_long_lat1(crime_data)
+
+    counts_minor = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,minor_dat)
     counts_farmers = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,farmers_dat)
     count_cameras = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,camera_dat)
     counts_permit = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,permit_dat)
@@ -51,7 +62,7 @@ def data_assemble():
     counts_vacant = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,vacant_dat)
     counts_crime = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,crime_dat)
 
-    test = np.hstack((counts_liquor.reshape((100,1)),counts_vacant.reshape((100,1)),counts_crime.reshape((100,1)),counts_permit.reshape((100,1)),count_cameras.reshape((100,1)),counts_farmers.reshape((100,1))))
+    test = np.hstack((counts_liquor.reshape((100,1)),counts_vacant.reshape((100,1)),counts_crime.reshape((100,1)),counts_permit.reshape((100,1)),count_cameras.reshape((100,1)),counts_farmers.reshape((100,1)),counts_minor.reshape((100,1))))
 
     #print
     print test
