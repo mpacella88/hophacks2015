@@ -27,8 +27,9 @@ def data_assemble():
     liquor_license = get_data("https://data.baltimorecity.gov/resource/xv8d-bwgi.csv")     # Works
     #towing_data = get_data("https://data.baltimorecity.gov/resource/k78j-azhn.csv")        # Works
     #special_event = get_data_special("https://data.baltimorecity.gov/resource/cdz5-3y2u.csv")       #does not seem to work
-    
     permit_activity = get_data_special("https://data.baltimorecity.gov/resource/k6m8-62kn.csv")
+    farmers_markets = get_data("https://data.baltimorecity.gov/resource/atzp-3tnt.json")
+
     permit_dat = []
     for x in permit_activity[1:]:
         holding = x[-1].split('\n')[-1]
@@ -40,16 +41,20 @@ def data_assemble():
     liquor_dat = extract_long_lat2(liquor_license)
     vacant_dat = extract_long_lat1(vacant_building)
     crime_dat = extract_long_lat1(crime_data)
+    farmers_dat = extract_long_lat2(farmers_markets) #@Henry, neither the lat1 or lat2 extract functions currently work for this one
+
     counts_permit = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,permit_dat)
     counts_liquor = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,liquor_dat)
     counts_vacant = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,vacant_dat)
     counts_crime = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,crime_dat)
-    test = np.hstack((counts_liquor.reshape((100,1)),counts_vacant.reshape((100,1)),counts_crime.reshape((100,1)),counts_permit.reshape((100,1))))
+    counts_farmers = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,farmers_dat)
+
+    test = np.hstack((counts_liquor.reshape((100,1)),counts_vacant.reshape((100,1)),counts_crime.reshape((100,1)),counts_permit.reshape((100,1)),counts_farmers.reshape((100,1))))
     #print
     print test
     #print
-    #print "Writing geo_machine_learning_data_to_disk..."
-    #np.save("geo_machine_learning_data",test)
+    print "Writing geo_machine_learning_data_to_disk..."
+    np.save("geo_machine_learning_data",test)
     return
 
 def write_time_data(date,coor):
