@@ -25,6 +25,12 @@ def data_assemble():
     speed_cameras = get_data_special("https://data.baltimorecity.gov/resource/aqgr-xx9h.csv")
     minor_permits = get_data_special("https://data.baltimorecity.gov/resource/bwg6-98m2.csv")
     historic_taxcred = get_data_special('https://data.baltimorecity.gov/resource/iub8-xy78.csv')
+    rat_sightings = pd.read_csv("./hophacks2015/rats_all.csv")
+
+    rat_dat = []
+    for x in range(0,len(rat_sightings['latitude'])):
+        if rat_sightings['latitude'][x] != 0.0 and rat_sightings['longitude'][x] != 0.0:
+            rat_dat.append([rat_sightings['latitude'][x],rat_sightings['longitude'][x]])
 
     historicTC_dat = []
     for x in historic_taxcred[1:]:
@@ -57,10 +63,13 @@ def data_assemble():
             holder2 = x[-1].split('\n')
             farmers_dat.append([ float(y.strip()) for y in holder2[-1][1:-1].split(',')])
 
+
+
     liquor_dat = extract_long_lat2(liquor_license)
     vacant_dat = extract_long_lat1(vacant_building)
     crime_dat = extract_long_lat1(crime_data)
 
+    counts_rat = bin_balt(76.681240,39.373947,-0.147814,0.10631,10,10,rat_dat)
     counts_HTC = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,historicTC_dat)
     counts_minor = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,minor_dat)
     counts_farmers = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,farmers_dat)
@@ -70,13 +79,29 @@ def data_assemble():
     counts_vacant = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,vacant_dat)
     counts_crime = bin_balt(-76.681240,39.373947,-0.147814,0.10631,10,10,crime_dat)
 
-    test = np.hstack((counts_liquor.reshape((100,1)),counts_vacant.reshape((100,1)),counts_crime.reshape((100,1)),counts_permit.reshape((100,1)),count_cameras.reshape((100,1)),counts_farmers.reshape((100,1)),counts_minor.reshape((100,1)),counts_HTC.reshape((100,1))))
+    write_data(liquor_dat,'liquor_stores.csv')
+    write_data(vacant_dat,'vacant_lots.csv')
+    write_data(crime_dat,'crime_data.csv')
+    write_data(permit_dat,'housing_permits.csv')
+    write_data(camera_dat,'speed_cameras.csv')
+    write_data(minor_dat,'minor_permits.csv')
+    write_data(farmers_dat,'farmers-markets.csv')
+    write_data(historicTC_dat,'HistoricTaxCred.csv')
+
+    test = np.hstack((counts_liquor.reshape((100,1)),counts_vacant.reshape((100,1)),counts_crime.reshape((100,1)),counts_permit.reshape((100,1)),count_cameras.reshape((100,1)),counts_farmers.reshape((100,1)),counts_minor.reshape((100,1)),counts_HTC.reshape((100,1)),counts_rat.reshape((100,1))))
 
     #print
     print test
     #print
     print "Writing geo_machine_learning_data_to_disk..."
     np.save("geo_machine_learning_data",test)
+    return
+
+def write_data(long_lat,name_of_file):
+    outfile = open(name_of_file,'w')
+    for x in long_lat:
+        outfile.write("%f %f\n"%(x[0],x[1]))
+    outfile.close()
     return
 
 def write_time_data(date,coor):
