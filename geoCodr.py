@@ -23,8 +23,6 @@ class GeoCodr(object):
         self.csvInPath = os.path.realpath(csvPath)
         self.csvOutPath = ''.join(os.path.realpath(csvPath).split('.')[:-1]) + '_with_lat_long.csv'
         
-        self.inStartRow = self.csvResume()
-        
         self.bing_api_key = bing_api_key
 #         self.google_api_key =google_api_key
         self.timeout = timeout
@@ -34,11 +32,11 @@ class GeoCodr(object):
         
         self.workUnitNum = int(workUnitNum)
         if self.workUnitNum is not None:
-            chunkLen = len(self.df)/4
-            wuSlice = slice(self.workUnitNum*chunkLen, (self.workUnitNum+1)*chunkLen)
+            self.chunkLen = len(self.df)/4
+            wuSlice = slice(self.workUnitNum*self.chunkLen, (self.workUnitNum+1)*self.chunkLen)
             self.df = self.df[wuSlice]
-            self.df = self.df.reset_index()
-            
+        
+        self.inStartRow = self.csvResume()
         self.flushRows = 50
     
     def csvResume(self):
@@ -52,7 +50,7 @@ class GeoCodr(object):
             print int(lastTokens[0])
             return int(lastTokens[0])
         else:
-            return 0
+            return self.df.index[0]
           
     def read_csv(self):
         self.df = pd.read_csv(self.csvInPath)
@@ -91,7 +89,7 @@ class GeoCodr(object):
                 break
             print 'switching Geocoder to %s' % geocoder.__class__.__name__
             while True:
-                if i>=len(self.df[colName]):
+                if i>self.df.index[-1]:
                     running = False
                     break
                 elif i%self.flushRows==0 and i!=0:

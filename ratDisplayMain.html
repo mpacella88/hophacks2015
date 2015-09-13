@@ -56,11 +56,21 @@
 var map, heatmap;
 var path = [];
     function firstInitMap(){
+        $.ajax({
+            type: "POST",
+            url: "ajaxTest.py",
+            success: function(response){
+                alert(response);
+            }
+        });
+
         map = new google.maps.Map(document.getElementById('map'), {
             zoom: 13,
             center: {lat: 39.299236, lng: -76.609383},
             mapTypeId: google.maps.MapTypeId.SCHEMATIC
         });
+
+
     }
     function initMap(newValue) {
         readCsv(newValue);
@@ -74,6 +84,7 @@ var path = [];
         });
         changeGradient();
     }
+
     function readCsv(newValue) {
         $(document).ready(function() {
             //fetch text file
