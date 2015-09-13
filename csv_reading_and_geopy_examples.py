@@ -11,6 +11,12 @@ with open('/Users/mpacella/Downloads/DOT_Towing.csv') as f:
     reader = csv.reader(f)
     tow_list = list(reader)
 
+#csv example
+#import csv
+#with open('/Users/mpacella/Downloads/DOT_Towing.csv') as f:
+#    reader = csv.reader(f)
+#    tow_list = list(reader)
+
 longitude[]
 latitude[]
 
