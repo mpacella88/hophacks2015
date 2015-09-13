@@ -60,15 +60,18 @@ class DBDF(object):
         self.addTimeCols()
         return self
     
-    def to_csv(self, outCsvPath, sep=' '):
-        self.df.to_csv(outCsvPath)
+    def to_csv(self, outCsvPath, columns=None, sep=' '):
+        if columns is None:
+            self.df.to_csv(outCsvPath, sep=sep, header=False, index=False)
+        else:
+            self.df.to_csv(outCsvPath, columns=columns, sep=sep, header=False, index=False)
     
     def to_csv_ByTime(self, outCsvTmpl, timePeriod, sep=' '):
         for yr in [2014, 2015]:
             yrDF = self.selectEq(cmpVal=yr, col='year')
             for i,t in enumerate(yrDF.df[timePeriod].unique()):
                 tDF = yrDF.selectEq(cmpVal=t, col=timePeriod)
-                tDF.to_csv(outCsvTmpl % (timePeriod, i))
+                tDF.to_csv(outCsvTmpl % (timePeriod, i), columns=['latitude', 'longitude'])
     
 if __name__=='__main__':
     dbDF = DBDF(['311_Customer_Service_Requests_with_lat_long_part_1.csv',
@@ -76,5 +79,5 @@ if __name__=='__main__':
                  '311_Customer_Service_Requests_with_lat_long_part_3.csv',
                  '311_Customer_Service_Requests_with_lat_long_part_4.csv'])
     dbDF = dbDF.ratify()
-    dbDF.to_csv_ByTime('rats_%s_%d.csv', timePeriod='quarter')
-    dbDF.to_csv('311_Customer_Service_Requests_with_lat_long_times.csv')
+    dbDF.to_csv_ByTime('rats_%s_%d.csv', timePeriod='dayofyear')
+    dbDF.to_csv('rats_all.csv', columns=['latitude', 'longitude'])
