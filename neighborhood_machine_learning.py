@@ -11,8 +11,10 @@ import itertools
 geo_data = np.load("geo_machine_learning_data.npy")
 
 #hard-code which columns are which features (UPDATE THIS ONCE HENRY IS FINISHED!!!!)
-column_feature_mapping = {'liquor stores':0 , 'vacant houses':1, 'crime':2, 'housing permits':3, 'cameras':4, 'farmers markets':5}
+#order is rats,crime,speedcam,vaclots,liqlic,farm, houseperm
+column_feature_mapping = {'liqLic':0 , 'vacLots':1, 'crime':2, 'housePerm':3, 'speedCam':4, 'farMarket':5, 'counts_minor':6, 'counts_HTC':7}
 
+i=1
 #iterate through all possible pairwise combinations of feature, one is the classifier, one is the target
 for pair in itertools.combinations(column_feature_mapping.keys(),2):
 
@@ -33,13 +35,19 @@ for pair in itertools.combinations(column_feature_mapping.keys(),2):
     clf.fit(training_data, training_target)
     print clf.score(testing_data, testing_target)
     data = geo_data[:,column_feature_mapping[pair[1]]]
+    if pair[1]=='farMarket':
+        print 'farmarket data:'
+        print data
     
     corr_coefficent = stat.pearsonr(data,target)
     print corr_coefficent[0]
+    plt.figure(i)
     plt.scatter(data,target)
-    plt.xlabel(pair[0])
-    plt.ylabel(pair[1])
-    plt.savefig(pair[0]+" vs "+pair[1]+".png")
+    plt.xlabel(pair[1])
+    plt.ylabel(pair[0])
+    plt.title(str(corr_coefficent[0]))
+    plt.savefig(pair[1]+" vs "+pair[0]+".png")
+    i+=1
 
 
 
